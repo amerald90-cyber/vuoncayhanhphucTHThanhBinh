@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vườn ươm hạnh phúc - Hạt giống yêu thương</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;1,400;1,700&family=Dancing+Script:wght@600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root { --cyber-cyan: #00f2ff; --gold-text: #f1c40f; --bg-dark: #0b0b0b; }
+        body { background: var(--bg-dark); color: #e0e0e0; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+
+        /* Navigation */
+        .nav-tabs { background: #000; border: none; padding: 5px 10px 0; border-bottom: 2px solid #1a1a1a; position: sticky; top: 0; z-index: 1000; }
+        .nav-link { color: #666; border: none !important; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; padding: 12px 20px; font-family: 'Orbitron', sans-serif; transition: 0.3s; }
+        .nav-link.active { background: var(--cyber-cyan) !important; color: #000 !important; box-shadow: 0 -5px 20px rgba(0, 242, 255, 0.4); }
+
+        .main-wrapper { display: flex; flex-direction: row; height: calc(100vh - 55px); }
+        .sidebar { width: 350px; background: #111; padding: 20px; overflow-y: auto; border-right: 1px solid #222; flex-shrink: 0; }
+        .preview-area { flex-grow: 1; background: #050505; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        #previewImg { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 0 50px rgba(0,0,0,0.8); border-radius: 4px; }
+
+        .group-label { color: var(--cyber-cyan); font-weight: bold; text-transform: uppercase; font-size: 0.75rem; margin-top: 18px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; letter-spacing: 1px; }
+        
+        /* Chỉnh Placeholder sáng hơn để dễ nhìn */
+        .form-control { background: #1a1a1a; border: 1px solid #333; color: white; font-size: 0.85rem; margin-bottom: 10px; border-radius: 4px; }
+        .form-control::placeholder { color: #aaa !important; opacity: 1; } 
+        .form-control:focus { background: #222; border-color: var(--cyber-cyan); color: white; box-shadow: none; }
+        
+        label { font-size: 0.7rem; color: #888; display: block; margin-bottom: 3px; }
+        input[type=range] { width: 100%; accent-color: var(--cyber-cyan); margin-bottom: 12px; }
+
+        .btn-action { font-weight: bold; padding: 12px; border-radius: 4px; border: none; width: 100%; margin-top: 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-garden { background: linear-gradient(45deg, #0066ff, var(--cyber-cyan)); color: #fff; }
+        .btn-garden:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .btn-save { background: #222; color: #aaa; }
+
+        /* Vườn Ươm */
+        .garden-container { padding: 40px; min-height: 100%; max-width: 1200px; margin: auto; }
+        .garden-header-box { border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 15px; padding: 30px; margin-bottom: 30px; background: rgba(0, 242, 255, 0.02); }
+        #treeCount { font-family: 'Orbitron'; font-size: 3.5rem; color: #fff; text-shadow: 0 0 20px var(--cyber-cyan); }
+        
+        .garden-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 40px 20px; }
+        
+        @keyframes sproutUp {
+            0% { transform: translateY(100px) scale(0); opacity: 0; }
+            60% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes breathingGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(0, 242, 255, 0.4)) brightness(1); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 25px rgba(0, 242, 255, 0.8)) brightness(1.2); }
+        }
+        
+        .tech-node { position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; animation: sproutUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .mam-xanh-img { width: 100px; height: 100px; object-fit: contain; transition: 0.5s; animation: breathingGlow 4s infinite ease-in-out; }
+        .tech-node:hover .mam-xanh-img { transform: scale(1.15) rotate(5deg); filter: drop-shadow(0 0 30px var(--cyber-cyan)); animation-play-state: paused; }
+        
+        .node-name { margin-top: 15px; font-weight: 700; color: #fff; font-size: 0.9rem; text-align: center; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-role { font-size: 0.75rem; color: var(--gold-text); font-style: italic; }
+
+        #loading { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-download-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; background: var(--cyber-cyan); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px var(--cyber-cyan); z-index: 9999; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div id="loading">
+    <div class="spinner-border text-info" style="width: 4rem; height: 4rem;"></div>
+    <div class="mt-4 text-info fw-bold" style="font-family: 'Orbitron';">ĐANG GIEO MẦM YÊU THƯƠNG...</div>
+</div>
+
+<ul class="nav nav-tabs" id="myTab">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#edit-pane">Thiết Kế Thông Điệp</button></li>
+    <li class="nav-item"><button class="nav-link" id="garden-tab-btn" data-bs-toggle="tab" data-bs-target="#garden-pane">Vườn Hạnh Phúc</button></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="edit-pane">
+        <div class="main-wrapper">
+            <div class="sidebar">
+                <div class="group-label">0. Chân dung</div>
+                <input class="form-control" type="file" id="uploadAvatar" accept="image/*">
+                <div class="row g-2">
+                    <div class="col-6"><label>Ngang:</label><input type="range" id="avtX" min="-300" max="300" value="0"></div>
+                    <div class="col-6"><label>Dọc:</label><input type="range" id="avtY" min="-300" max="300" value="0"></div>
+                </div>
+                <label>Kích thước:</label><input type="range" id="avtScale" min="0.1" max="2.0" step="0.01" value="0.55">
+
+                <div class="group-label">1. Thông tin Người Gửi</div>
+                <input type="text" id="inpSender" class="form-control" placeholder="Họ tên người gửi">
+                <input type="text" id="inpClass" class="form-control" placeholder="Lớp hoặc Xưng hô (VD: Lớp 1A, Phụ huynh...)">
+                <input type="text" id="inpSchool" class="form-control" placeholder="Trường">
+                <input type="text" id="inpCampus" class="form-control" placeholder="Phân hiệu">
+                
+                <div class="group-label">2. Nội dung thông điệp</div>
+                <textarea id="inpMessage" class="form-control" rows="5" placeholder="Viết lời nhắn gửi tại đây..."></textarea>
+                
+                <div class="group-label">3. Tinh chỉnh chữ</div>
+                <label>Vị trí dọc lời nhắn:</label><input type="range" id="msgY" min="-300" max="100" value="0">
+                <label>Độ rộng khung chữ:</label><input type="range" id="msgWidth" min="500" max="850" value="720">
+                <label>Cỡ chữ:</label><input type="range" id="msgSize" min="20" max="60" value="36">
+                
+                <button onclick="addToGarden()" class="btn-action btn-garden">Gieo thông điệp & Tải về</button>
+                <button onclick="downloadImage()" class="btn-action btn-save">Chỉ lưu ảnh</button>
+            </div>
+            <div class="preview-area">
+                <img id="previewImg" src="">
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="garden-pane">
+        <div class="garden-container text-center">
+            <div class="garden-header-box">
+                <h2>VƯỜN ƯƠM MẦM HẠNH PHÚC</h2>
+                <div class="mt-2">
+                    <span style="color: #888;">Chúng ta đã có </span>
+                    <b id="treeCount">0</b> 
+                    <span style="color: var(--cyber-cyan);"> mầm xanh yêu thương</span>
+                </div>
+            </div>
+            <div class="garden-grid" id="gardenGrid"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="treeModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content" style="background: #000;">
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center" data-bs-dismiss="modal">
+                <img id="modalImg" style="max-width: 95%; max-height: 90vh; object-fit: contain;">
+                <a href="javascript:void(0)" id="modalDownloadBtn" class="modal-download-btn"><i class="bi bi-download"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="mainCanvas" style="display:none;"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLXOLk8MSVLMRRPO2D_OpN0JEJSogEi7SH0EivfGlY5MBr63FdmiH88r35WuYUGUw/exec"; 
+    const BG_URL = "https://lh3.googleusercontent.com/d/1nZ0O7HWEhb9yPejbcvJXZd5I8Qp6Ns-2";
+    const LOGO_CAY = "https://lh3.googleusercontent.com/d/1qryyMSVi4kcGem2FY8_M1wfisDYLXWWQ";
+
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const previewImg = document.getElementById('previewImg');
+    let bgImg = new Image();
+    let userAvatar = new Image();
+    let isAvatarLoaded = false;
+    let gardenData = []; 
+    let lastTotal = 0;
+
+    window.onload = () => {
+        bgImg.crossOrigin = "anonymous";
+        bgImg.src = BG_URL;
+        bgImg.onload = () => { 
+            canvas.width = bgImg.width; 
+            canvas.height = bgImg.height; 
+            update(); 
+        };
+        initLoadData();
+        setInterval(autoSyncData, 10000); 
+    };
+
+    document.getElementById('uploadAvatar').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            userAvatar = new Image();
+            userAvatar.onload = () => { isAvatarLoaded = true; update(); };
+            userAvatar.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function update() {
+        if(!bgImg.complete) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (isAvatarLoaded) {
+            ctx.save();
+            const avtX = parseInt(document.getElementById('avtX').value);
+            const avtY = parseInt(document.getElementById('avtY').value);
+            const scale = parseFloat(document.getElementById('avtScale').value);
+            const w = userAvatar.width * scale;
+            const h = userAvatar.height * scale;
+            ctx.drawImage(userAvatar, 255 + avtX - w/2, 475 + avtY - h/2, w, h);
+            ctx.restore();
+        }
+
+        ctx.drawImage(bgImg, 0, 0);
+        drawTextContent();
+        previewImg.src = canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    function drawTextContent() {
+        const sender = (document.getElementById('inpSender').value || "Tên Người Gửi").toUpperCase();
+        // Đã bỏ chữ "Lớp " mặc định ở đây
+        const sClass = document.getElementById('inpClass').value || "";
+        const sSchool = document.getElementById('inpSchool').value || "";
+        const sCampus = document.getElementById('inpCampus').value || "";
+        const message = document.getElementById('inpMessage').value || "Hãy viết những mầm xanh yêu thương của bạn vào đây...";
+        
+        const msgSize = parseInt(document.getElementById('msgSize').value);
+        const msgYStart = 365 + parseInt(document.getElementById('msgY').value); 
+        const msgMaxWidth = parseInt(document.getElementById('msgWidth').value);
+        const frameCenterX = 905;
+        
+        // Đã dịch trái 0.5cm (~20px) so với bản trước
+        const startX = frameCenterX - (msgMaxWidth / 2) - 20; 
+
+        // Vẽ Họ tên
+        ctx.textAlign = "center"; 
+        ctx.fillStyle = "#05321e";
+        ctx.font = "bold 22px 'Montserrat'";
+        ctx.fillText(sender, 260, 580); 
+
+        // Vẽ Thông tin lớp/trường (Màu Deep Forest)
+        ctx.fillStyle = "#1e5a3c"; 
+        ctx.font = "italic 400 18px 'Montserrat'"; 
+        ctx.fillText(sClass, 260, 610); 
+        ctx.fillText(sSchool, 260, 633); 
+        ctx.fillText(sCampus, 260, 656);
+
+        // Vẽ Lời nhắn nội dung
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#333"; 
+        ctx.font = `${msgSize}px 'Dancing Script'`;
+        drawJustifiedText(ctx, message, startX, msgYStart, msgMaxWidth, msgSize * 1.35);
+    }
+
+    function drawJustifiedText(context, text, x, y, maxWidth, lineHeight) {
+        const indent = 50; 
+        let words = text.split(/\s+/);
+        let lines = [];
+        let currentLine = [words[0]];
+
+        for (let i = 1; i < words.length; i++) {
+            let testLine = currentLine.join(' ') + ' ' + words[i];
+            let currentMax = (lines.length === 0) ? (maxWidth - indent) : maxWidth;
+            if (context.measureText(testLine).width < currentMax) {
+                currentLine.push(words[i]);
+            } else {
+                lines.push(currentLine);
+                currentLine = [words[i]];
+            }
+        }
+        lines.push(currentLine);
+
+        lines.forEach((line, idx) => {
+            let lineY = y + (idx * lineHeight);
+            let currentX = (idx === 0) ? (x + indent) : x;
+            let lineMaxWidth = (idx === 0) ? (maxWidth - indent) : maxWidth;
+
+            if (idx === lines.length - 1 || line.length === 1) {
+                context.textAlign = 'left';
+                context.fillText(line.join(' '), currentX, lineY);
+            } else {
+                let totalWordsWidth = 0;
+                line.forEach(w => totalWordsWidth += context.measureText(w).width);
+                let spaceWidth = (lineMaxWidth - totalWordsWidth) / (line.length - 1);
+                let drawX = currentX;
+                line.forEach((word) => {
+                    context.fillText(word, drawX, lineY);
+                    drawX += context.measureText(word).width + spaceWidth;
+                });
+            }
+        });
+    }
+
+    async function initLoadData() {
+        try {
+            const res = await fetch(GOOGLE_SCRIPT_URL);
+            const data = await res.json();
+            gardenData = data.items.slice().reverse();
+            lastTotal = data.total;
+            document.getElementById('treeCount').innerText = lastTotal;
+            renderGarden(false);
+        } catch (e) {}
+    }
+
+    function renderGarden(isNewUpdate = false) {
+        const grid = document.getElementById('gardenGrid');
+        if(!grid) return;
+        grid.innerHTML = "";
+        gardenData.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = "tech-node";
+            const randomDelay = (Math.random() * -4).toFixed(2) + "s";
+            if (isNewUpdate && index === 0) div.style.animation = "sproutUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+            
+            div.innerHTML = `
+                <img src="${LOGO_CAY}" class="mam-xanh-img" style="animation-delay: ${randomDelay}">
+                <div class="node-name">${item.hoten}</div>
+                <div class="node-role">${item.donvi}</div>
+            `;
+            div.onclick = () => { 
+                document.getElementById('modalImg').src = item.imgData;
+                document.getElementById('modalDownloadBtn').onclick = (e) => {
+                    e.stopPropagation();
+                    const link = document.createElement('a');
+                    link.download = `HanhPhuc_${item.hoten}.jpg`;
+                    link.href = item.imgData;
+                    link.click();
+                };
+                new bootstrap.Modal(document.getElementById('treeModal')).show(); 
+            };
+            grid.appendChild(div);
+        });
+    }
+
+    async function addToGarden() {
+        const sender = document.getElementById('inpSender').value;
+        const sClass = document.getElementById('inpClass').value;
+        const school = document.getElementById('inpSchool').value;
+        const campus = document.getElementById('inpCampus').value;
+        
+        if(!sender || !isAvatarLoaded) return alert("Vui lòng nhập tên người gửi và tải ảnh chân dung!");
+        
+        downloadImage();
+        document.getElementById('loading').style.display = 'flex';
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        const infoString = `${sClass} - ${school} (${campus})`;
+        const newItem = { hoten: sender, donvi: infoString, imgData: imgData };
+        
+        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(newItem) });
+        gardenData.unshift(newItem); lastTotal++;
+        document.getElementById('treeCount').innerText = lastTotal;
+        renderGarden(true);
+        
+        setTimeout(() => { 
+            document.getElementById('loading').style.display = 'none'; 
+            document.getElementById('garden-tab-btn').click(); 
+        }, 1500);
+    }
+
+    async function autoSyncData() {
+        try {
+            const res = await fetch(GOOGLE_SCRIPT_URL);
+            const data = await res.json();
+            const newTotal = parseInt(data.total);
+            if (newTotal > lastTotal) {
+                lastTotal = newTotal;
+                document.getElementById('treeCount').innerText = lastTotal;
+                gardenData = data.items.slice().reverse();
+                renderGarden(true);
+            }
+        } catch (e) {}
+    }
+
+    function downloadImage() {
+        const link = document.createElement('a');
+        link.download = `ThongDiep_HanhPhuc_${Date.now()}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        link.click();
+    }
+
+    document.querySelectorAll('input, textarea').forEach(el => el.oninput = update);
+</script>
+</body>
+</html>
