@@ -85,10 +85,10 @@
                 <div class="group-label">0. Chân dung</div>
                 <input class="form-control" type="file" id="uploadAvatar" accept="image/*">
                 <div class="row g-2">
-                    <div class="col-6"><label>Ngang:</label><input type="range" id="avtX" min="-300" max="300" value="0"></div>
-                    <div class="col-6"><label>Dọc:</label><input type="range" id="avtY" min="-300" max="300" value="0"></div>
+                    <div class="col-6"><label>Ngang:</label><input type="range" id="avtX" min="-150" max="150" value="0"></div>
+                    <div class="col-6"><label>Dọc:</label><input type="range" id="avtY" min="-150" max="150" value="0"></div>
                 </div>
-                <label>Kích thước:</label><input type="range" id="avtScale" min="0.1" max="2.0" step="0.01" value="0.55">
+                <label>Kích thước:</label><input type="range" id="avtScale" min="0.1" max="2.0" step="0.01" value="0.5">
 
                 <div class="group-label">1. Thông tin Người Gửi</div>
                 <input type="text" id="inpSender" class="form-control" placeholder="Họ tên người gửi">
@@ -100,9 +100,9 @@
                 <textarea id="inpMessage" class="form-control" rows="5" placeholder="Viết lời nhắn gửi tại đây..."></textarea>
                 
                 <div class="group-label">3. Tinh chỉnh chữ</div>
-                <label>Vị trí dọc lời nhắn:</label><input type="range" id="msgY" min="-300" max="100" value="0">
-                <label>Độ rộng khung chữ:</label><input type="range" id="msgWidth" min="500" max="850" value="720">
-                <label>Cỡ chữ:</label><input type="range" id="msgSize" min="20" max="60" value="36">
+                <label>Vị trí dọc lời nhắn:</label><input type="range" id="msgY" min="-100" max="100" value="0">
+                <label>Độ rộng khung chữ:</label><input type="range" id="msgWidth" min="300" max="520" value="480">
+                <label>Cỡ chữ:</label><input type="range" id="msgSize" min="14" max="40" value="24">
                 
                 <button onclick="addToGarden()" class="btn-action btn-garden">Gieo thông điệp & Tải về</button>
                 <button onclick="downloadImage()" class="btn-action btn-save">Chỉ lưu ảnh</button>
@@ -184,50 +184,59 @@
         if(!bgImg.complete) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
+        ctx.drawImage(bgImg, 0, 0);
+
         if (isAvatarLoaded) {
             ctx.save();
+            ctx.beginPath();
+            ctx.arc(147, 230, 80, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
             const avtX = parseInt(document.getElementById('avtX').value);
             const avtY = parseInt(document.getElementById('avtY').value);
             const scale = parseFloat(document.getElementById('avtScale').value);
             const w = userAvatar.width * scale;
             const h = userAvatar.height * scale;
-            ctx.drawImage(userAvatar, 255 + avtX - w/2, 475 + avtY - h/2, w, h);
+            ctx.drawImage(userAvatar, 147 + avtX - w/2, 230 + avtY - h/2, w, h);
             ctx.restore();
         }
 
-        ctx.drawImage(bgImg, 0, 0);
         drawTextContent();
         previewImg.src = canvas.toDataURL('image/jpeg', 0.9);
     }
 
     function drawTextContent() {
-        const sender = (document.getElementById('inpSender').value || "Tên Người Gửi").toUpperCase();
-        // Đã bỏ chữ "Lớp " mặc định ở đây
+        const sender = (document.getElementById('inpSender').value || "TÊN NGƯỜI GỬI").toUpperCase();
         const sClass = document.getElementById('inpClass').value || "";
         const sSchool = document.getElementById('inpSchool').value || "";
         const sCampus = document.getElementById('inpCampus').value || "";
         const message = document.getElementById('inpMessage').value || "Hãy viết những mầm xanh yêu thương của bạn vào đây...";
         
         const msgSize = parseInt(document.getElementById('msgSize').value);
-        const msgYStart = 365 + parseInt(document.getElementById('msgY').value); 
+        const msgYStart = 245 + parseInt(document.getElementById('msgY').value); 
         const msgMaxWidth = parseInt(document.getElementById('msgWidth').value);
-        const frameCenterX = 905;
+        const frameCenterX = 568;
         
-        // Đã dịch trái 0.5cm (~20px) so với bản trước
-        const startX = frameCenterX - (msgMaxWidth / 2) - 20; 
+        const startX = frameCenterX - (msgMaxWidth / 2); 
 
-        // Vẽ Họ tên
+        // Vẽ Họ tên (Căn giữa tại x = 147)
         ctx.textAlign = "center"; 
         ctx.fillStyle = "#05321e";
-        ctx.font = "bold 22px 'Montserrat'";
-        ctx.fillText(sender, 260, 580); 
+        ctx.font = "bold 14px 'Montserrat'";
+        ctx.fillText(sender, 147, 345); 
 
         // Vẽ Thông tin lớp/trường (Màu Deep Forest)
         ctx.fillStyle = "#1e5a3c"; 
-        ctx.font = "italic 400 18px 'Montserrat'"; 
-        ctx.fillText(sClass, 260, 610); 
-        ctx.fillText(sSchool, 260, 633); 
-        ctx.fillText(sCampus, 260, 656);
+        ctx.font = "italic 400 12px 'Montserrat'"; 
+        ctx.fillText(sClass, 147, 390); 
+
+        if (sCampus) {
+            ctx.fillText(sSchool, 147, 435); 
+            ctx.fillText(sCampus, 147, 453);
+        } else {
+            ctx.fillText(sSchool, 147, 442);
+        }
 
         // Vẽ Lời nhắn nội dung
         ctx.textAlign = "left";
@@ -237,7 +246,7 @@
     }
 
     function drawJustifiedText(context, text, x, y, maxWidth, lineHeight) {
-        const indent = 50; 
+        const indent = 30; 
         let words = text.split(/\s+/);
         let lines = [];
         let currentLine = [words[0]];
